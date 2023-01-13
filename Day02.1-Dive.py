@@ -37,3 +37,20 @@ After following these instructions, you would have a horizontal position of 15 a
 Calculate the horizontal position and depth you would have after following the planned course. What do you get if you multiply your final horizontal position by your final depth?
 """
 
+x = 0
+y = 0
+
+with open('Day02-Input', 'r') as file:
+    for line in file:
+        d, c = line.split()
+        c = int(c)
+        if d == 'forward':
+            x += c
+        elif d == 'down':
+            y += c
+        else:
+            y -= c
+
+print(x, y, x*y)
+
+# 1996 1022 2039912
