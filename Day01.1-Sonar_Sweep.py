@@ -49,4 +49,16 @@ In this example, there are 7 measurements that are larger than the previous meas
 How many measurements are larger than the previous measurement?
 """
 
+prev = 1000000000
+count = 0
 
+with open('Day01-Input', 'r') as file:
+    for line in file:
+        cur = int(line)
+        if cur > prev:
+            count += 1
+        prev = cur
+
+print(count)
+
+# 1532
