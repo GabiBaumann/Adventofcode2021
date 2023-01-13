@@ -63,4 +63,59 @@ The score of the winning board can now be calculated. Start by finding the sum o
 To guarantee victory against the giant squid, figure out which board will win first. What will your final score be if you choose that board?
 """
 
+from copy import deepcopy as cp
 
+numbers = []
+boards = []
+board = []
+checks = []
+cb = [[ False, False, False, False, False ], [ False, False, False, False, False ], [ False, False, False, False, False ], [ False, False, False, False, False ], [ False, False, False, False, False ]] 
+
+with open('Day04-Input', 'r') as file:
+    line = file.readline()
+    for i in line.split(','):
+        numbers.append(int(i))
+    file.readline()
+    for line in file:
+        if line == '\n':
+            boards.append(board)
+            board = []
+            checks.append(cp(cb))
+            continue
+        row = []
+        for num in line.split():
+            row.append(int(num))
+        board.append(row)
+boards.append(board)
+checks.append(cp(cb))
+
+for number in numbers:
+    print(number)
+    for bd in range(len(boards)):
+        for row in range(5):
+            for col in range(5):
+                if number == boards[bd][row][col]:
+                    checks[bd][row][col] = True
+                    finished = True
+                    for x in range(5):
+                        if checks[bd][row][x] == False:
+                            finished = False
+                            break
+                    if not finished:
+                        for y in range(5):
+                            if checks[bd][y][col] == False:
+                                finished = False
+                                break
+                    if finished:
+                        # compute result and quit.
+                        print(boards[bd])
+                        print(checks[bd])
+                        s = 0
+                        for y in range(5):
+                            for x in range(5):
+                                if not checks[bd][y][x]:
+                                    s += boards[bd][y][x]
+                        print(number, s, s*number)
+                        quit()
+
+# 14 741 10374
