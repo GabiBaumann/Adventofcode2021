@@ -156,32 +156,82 @@ Len 6: 0, 6, 9
 
 """
 
-count = 0
+s = 0
 digits = [ '', '', '', '', '', '', '', '', '', '' ]
 
-#with open('Day08-Input--Debug', 'r') as file:
-with open('Day08-Input', 'r') as file:
+with open('Day08-Input--Debug', 'r') as file:
+#with open('Day08-Input', 'r') as file:
     for line in file:
         perms, ov = line.split('|')
         fivers = []
         sixers = []
         for digit in perms.split():
-            if len(i) == 2:
+            if len(digit) == 2:
                 digits[1] = digit
-            elif len(i) == 3:
-                digits[7] == digit
-            elif len(i) == 4:
+            elif len(digit) == 3:
+                digits[7] = digit
+            elif len(digit) == 4:
                 digits[4] = digit
-            elif len(i) == 7:
+            elif len(digit) == 7:
                 digits[8] = digit
-            elif len(i) == 5:
+            elif len(digit) == 5:
                 fivers.append(digit)
             else:
                 sixers.append(digit)
+        # find 9 (contains all of four)
+        for digit in sixers:
+            isit = True
+            for char in digits[4]:
+                if char not in digit:
+                    isit = False
+                    break
+            if isit:
+                digits[9] = digit
+                sixers.remove(digit)
+                break
+        # find 6 (does not contain all of one)
+        for digit in sixers:
+            for char in digits[1]:
+                if char not in digit:
+                    digits[6] = digit
+                    sixers.remove(digit)
+                    break
+        # remaining is 0
+        digits[0] = sixers[0]
+        # find 3 (contains all of one)
+        for digit in fivers:
+            isit = True
+            for char in digits[1]:
+                if char not in digit:
+                    isit = False
+                    break
+            if isit:
+                digits[3] = digit
+                fivers.remove(digit)
+                break
+        # find 5 (contained in 9)
+        for digit in fivers:
+            isit = True
+            for char in digit:
+                if char not in digits[9]:
+                    isit = False
+                    break
+            if isit:
+                digits[5] = digit
+                fivers.remove(digit)
+        # remaining is 2
+        digits[2] = fivers[0]
+        print(digits)
 
-        for i in ov.split():
-            if len(i) in sc:
-                count += 1
-print(count)
+        for digit in ov.split():
+            val = 0
+            for i in range(10):
+                isit = True
+                for char in digit:
+                    # ugh... sort and check identity!
+                if digit == digits[i]:
+                    val = 10 * val + i
+            s += val
+print(s)
 
 # 278
