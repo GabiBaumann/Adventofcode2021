@@ -159,25 +159,25 @@ Len 6: 0, 6, 9
 s = 0
 digits = [ '', '', '', '', '', '', '', '', '', '' ]
 
-with open('Day08-Input--Debug', 'r') as file:
-#with open('Day08-Input', 'r') as file:
+#with open('Day08-Input--Debug', 'r') as file:
+with open('Day08-Input', 'r') as file:
     for line in file:
         perms, ov = line.split('|')
         fivers = []
         sixers = []
         for digit in perms.split():
             if len(digit) == 2:
-                digits[1] = digit
+                digits[1] = sorted(digit)
             elif len(digit) == 3:
-                digits[7] = digit
+                digits[7] = sorted(digit)
             elif len(digit) == 4:
-                digits[4] = digit
+                digits[4] = sorted(digit)
             elif len(digit) == 7:
-                digits[8] = digit
+                digits[8] = sorted(digit)
             elif len(digit) == 5:
-                fivers.append(digit)
+                fivers.append(sorted(digit))
             else:
-                sixers.append(digit)
+                sixers.append(sorted(digit))
         # find 9 (contains all of four)
         for digit in sixers:
             isit = True
@@ -221,17 +221,14 @@ with open('Day08-Input--Debug', 'r') as file:
                 fivers.remove(digit)
         # remaining is 2
         digits[2] = fivers[0]
-        print(digits)
 
+        val = 0
         for digit in ov.split():
-            val = 0
             for i in range(10):
-                isit = True
-                for char in digit:
-                    # ugh... sort and check identity!
-                if digit == digits[i]:
+                if sorted(digit) == digits[i]:
                     val = 10 * val + i
-            s += val
+        s += val
+
 print(s)
 
-# 278
+# 986179
