@@ -157,12 +157,28 @@ Len 6: 0, 6, 9
 """
 
 count = 0
-sc = [ 2, 3, 4, 7 ]
+digits = [ '', '', '', '', '', '', '', '', '', '' ]
 
 #with open('Day08-Input--Debug', 'r') as file:
 with open('Day08-Input', 'r') as file:
     for line in file:
-        d0, ov = line.split('|')
+        perms, ov = line.split('|')
+        fivers = []
+        sixers = []
+        for digit in perms.split():
+            if len(i) == 2:
+                digits[1] = digit
+            elif len(i) == 3:
+                digits[7] == digit
+            elif len(i) == 4:
+                digits[4] = digit
+            elif len(i) == 7:
+                digits[8] = digit
+            elif len(i) == 5:
+                fivers.append(digit)
+            else:
+                sixers.append(digit)
+
         for i in ov.split():
             if len(i) in sc:
                 count += 1
