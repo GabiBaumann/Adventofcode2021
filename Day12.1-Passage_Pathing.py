@@ -127,17 +127,20 @@ def pathing(pos, visited):
 paths = {}
 count = 0
 
-with open('Day12-Input--Debug2', 'r') as file:
+#with open('Day12-Input--Debug3', 'r') as file:
+with open('Day12-Input', 'r') as file:
     for line in file:
         p0, p1 = line.strip().split('-')
-        if p0 in paths:
-            paths[p0].append(p1)
-        elif p1 != 'start':
-            paths[p0] = [ p1 ]
-        if p1 in paths :
-            paths[p1].append(p0)
-        elif p0 != 'start':
-            paths[p1] = [ p0 ]
+        if p1 != 'start':
+            if p0 in paths:
+                paths[p0].append(p1)
+            else:
+                paths[p0] = [ p1 ]
+        if p0 != 'start':
+            if p1 in paths:
+                paths[p1].append(p0)
+            else:
+                paths[p1] = [ p0 ]
 paths.pop('end')
 print(paths)
 
@@ -145,3 +148,5 @@ for target in paths['start']:
     print('Starting', target)
     count += pathing(target, [])
 print(count)
+
+# 5104
