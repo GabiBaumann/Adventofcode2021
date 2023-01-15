@@ -67,6 +67,12 @@ In the above example, the most common element is B (occurring 2192039569602 time
 Apply 40 steps of pair insertion to the polymer template and find the most and least common elements in the result. What do you get if you take the quantity of the most common element and subtract the quantity of the least common element?
 """
 
+"""
+To be seriously faster:
+    Extend all element combos 20x, write results to another dict.
+    Apply that to template twice.
+"""
+
 # pt 1
 steps = 10
 # pt 2
@@ -94,17 +100,16 @@ with open('Day14-Input--Debug', 'r') as file:
 print(elements)
 print(template)
 print(rules)
+startchar = template[0]
 
 for step in range(steps):
     print(step)
-    i = 0
-    while i < len(template) - 1:
-        pair = template[i:i+2]
-        if pair in rules:
-            template = template[:i+1] + rules[pair] + template[i+1:]
-            i += 2
-        else:
-            i += 1
+    nt = ''
+    fl = startchar
+    for char in template[1:]:
+        nt += fl + rules[fl+char]
+        fl = char
+    template = nt + fl
 
 for e in elements:
     count = 0
