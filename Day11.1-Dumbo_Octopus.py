@@ -303,29 +303,68 @@ After 100 steps, there have been a total of 1656 flashes.
 Given the starting energy levels of the dumbo octopuses in your cavern, simulate 100 steps. How many total flashes are there after 100 steps?
 """
 
+steps = 100
 grid = []
 
-with open('Day11-Input--Debug', 'r') as file:
+def flash(y, x):
+    grid[y][x] = 0
+    r = 1
+    if y > 0 < x and grid[y-1][x-1] > 0:
+        grid[y-1][x-1] += 1
+        if grid[y-1][x-1] > 9:
+            r += flash(y-1, x-1)
+    if y > 0 and grid[y-1][x] > 0:
+        grid[y-1][x] += 1
+        if grid[y-1][x] > 9:
+            r += flash(y-1, x)
+    if y > 0 and x < lx-1 and grid[y-1][x+1] > 0:
+        grid[y-1][x+1] += 1
+        if grid[y-1][x+1] > 9:
+            r += flash(y-1, x+1)
+    if x > 0 and grid[y][x-1] > 0:
+        grid[y][x-1] += 1
+        if grid[y][x-1] > 9:
+            r += flash(y, x-1)
+    if x < lx-1 and grid[y][x+1] > 0:
+        grid[y][x+1] += 1
+        if grid[y][x+1] > 9:
+            r += flash(y, x+1)
+    if y < ly-1 and x > 0 and grid[y+1][x-1] > 0:
+        grid[y+1][x-1] += 1
+        if grid[y+1][x-1] > 9:
+            r += flash(y+1, x-1)
+    if y < ly-1 and grid[y+1][x] > 0:
+        grid[y+1][x] += 1
+        if grid[y+1][x] > 9:
+            r += flash(y+1, x)
+    if y < ly-1 and x < lx-1 and grid[y+1][x+1] > 0:
+        grid[y+1][x+1] += 1
+        if grid[y+1][x+1] > 9:
+            r += flash(y+1, x+1)
+    return r
+
+
+#with open('Day11-Input--Debug', 'r') as file:
+with open('Day11-Input', 'r') as file:
     for line in file:
         row = []
         for char in line.strip():
             row.append(int(char))
         grid.append(row)
 
-print(grid)
 lx = len(row)
 ly = len(grid)
+flashes = 0
 
-for y in range(ly):
-    for x in range(lx):
-        grid[y][x] += 1
+for count in range(steps):
+    for y in range(ly):
+        for x in range(lx):
+            grid[y][x] += 1
+    for y in range(ly):
+        for x in range(lx):
+            if grid[y][x] > 9:
+                flashes += flash(y, x)
 
-for y in range(ly):
-    for x in range(lx):
-        if grid[y][x] > 9:
-            flashes += 1
-            grid[y][x] = 0
-            if y > 0 < x and grid[y-1][x-1] > 0:
-                grid[y-1][x-1] += 1
-                if grid[y-1][x-1] > 9:
-                    # tee hee.
+print(flashes)
+
+# 1683
