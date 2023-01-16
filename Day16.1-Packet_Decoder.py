@@ -98,54 +98,53 @@ Decode the structure of your hexadecimal-encoded BITS transmission; what do you 
 """
 
 def decode_literal(l):
+    num = ''
     while l[0] == '1':
-        print(l[:5])
+        num += l[1:5]
         l = l[5:]
-    print(l[:5])
+    num += l[1:5]
     l = l[5:]
+    print('Literal Number:', int(num,2))
     return l
 
 def decode_operator(o):
-    # operator
-    print('An operator packet')
     if o[0] == '0':
-        length = o[1:16]
+        content_length = int(o[1:16],2)
         o = o[16:]
-        content_length = int(length,2)
         string_length = len(o)
         while len(o) > string_length - content_length:
+            print('Decode packet in t0 operator')
             o = decode_packet(o)
     else:
-        print('boo')
         length = o[1:12]
         o = o[12:]
         contained_packets = int(length,2)
-        for i in range(contained_packets):
+        for i in range(int(length,2)):
+            print('Decode packet', i+1, 'in t1 operator')
             o = decode_packet(o)
     return o
 
-
-
 def decode_packet(p):
-    v = p[:3]
-    t = p[3:6]
-    print()
+    global ver_sum
+    v = int(p[:3],2)
+    t = int(p[3:6],2)
     print(v, t)
-    print(int(v,2))
-    print(int(t,2))
+    ver_sum += v
     p = p[6:]
-    if t == '100':
+    if t == 4:
         # literal value
-        print('Some literal value')
-        remain = decode_literal(p)
+        p = decode_literal(p)
     else:
         # operator
         print('An operator packet')
-        remain = decode_operator(p)
-    return remain
+        p = decode_operator(p)
+    return p
 
 
-with open('Day16-Input--Debug2') as file:
+ver_sum = 0
+
+#with open('Day16-Input--Debug6') as file:
+with open('Day16-Input') as file:
     line = file.read()
 
 print(line)
@@ -153,32 +152,16 @@ bla = int(line,16)
 print(bla)
 print(hex(bla))
 print(bin(bla))
-s = str(bin(bla))[2:]
-print(s)
-pad = (4 - len(s) % 4) % 4
+s = bin(bla)[2:]
+pad = (4 - len(s)) % 4
+pd = ''
 for i in range(pad):
-    s = '0' + s
+    pd += '0'
+s = pd + s
+print(s)
 
-decode_packet(s)
-quit()
-v = s[:3]
-t = s[3:6]
-print()
-print(v, t)
-print(int(v,2))
-print(int(t,2))
-s = s[6:]
-if t == '100':
-    # literal value
-    print('Some literal value')
-    remain = decode_literal(s)
-    s = remain
-else:
-    # operator
-    print('An operator packet')
-    if s[0] == '0':
-        length = s[1:16]
-        s = s[16:]
-        print(int(length,2))
-        decode_packet()
+while len(s) > 10:
+    print('Decoding afresh')
+    s = decode_packet(s)
 
+print(ver_sum)
