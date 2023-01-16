@@ -71,14 +71,23 @@ Apply 40 steps of pair insertion to the polymer template and find the most and l
 To be seriously faster:
     Extend all element combos 20x, write results to another dict.
     Apply that to template twice.
+
+Oh well, this runs faster... OOM :(
+How about not even creating the final string, but to only count chars?
 """
 
-# pt 1
-steps = 10
-# pt 2
-steps = 40
+from copy import copy as cp
+
+# pt 2: 40 = 2 * 20
+extension_steps = 20
+# pt. 1
+#extension_steps = 5
 
 rules = {}
+extrules = {}
+countchars = {}
+charsums = {}
+totals = {}
 elements = []
 most = 0
 least = 1000000000000000
@@ -102,24 +111,52 @@ print(template)
 print(rules)
 startchar = template[0]
 
-for step in range(steps):
-    print(step)
-    nt = ''
-    fl = startchar
-    for char in template[1:]:
-        nt += fl + rules[fl+char]
-        fl = char
-    template = nt + fl
-
 for e in elements:
-    count = 0
-    for char in template:
-        if char == e:
-            count += 1
-    if count > most:
-        most = count
-    if count < least:
-        least = count
+    totals[e] = 0
+
+# compute and record all conceivable variations
+# for doing half the number of steps
+for e0 in elements:
+    for e1 in elements:
+        for e in elements:
+            countchars[e] = 0
+        t = e0
+        for step in range(extension_steps):
+            nt = ''
+            fl = e0
+            t += e1
+            for char in t[1:]:
+                nt += fl + rules[fl+char]
+                fl = char
+            t = nt
+        for e in t:
+            countchars[e] += 1
+        charsums[e0+e1] = cp(countchars)
+        extrules[e0+e1] = t
+
+# expand the actual string
+nt = ''
+fl = startchar
+for char in template[1:]:
+    nt += extrules[fl+char]
+    fl = char
+template = nt + fl
+
+# compute final numbers
+fl = startchar
+for char in template[1:]:
+    for e in elements:
+        totals[e] += charsums[fl+char][e]
+    fl = char
+totals[fl] += 1
+print(totals)
+
+# get min and max
+for e in elements:
+    if totals[e] < least:
+        least = totals[e]
+    if totals[e] > most:
+        most = totals[e]
 
 print(most, least)
 print(most-least)
@@ -129,4 +166,5 @@ print(most-least)
 # 3095
 
 # pt 2:
-# 
+# 4213191743184 1060403316668
+# 3152788426516
