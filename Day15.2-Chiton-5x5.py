@@ -167,40 +167,38 @@ Using the full map, what is the lowest total risk of any path from the top left 
 
 from copy import copy as cp
 from sys import setrecursionlimit
-setrecursionlimit(100000)
+setrecursionlimit(10000)
 
 def nextstep(posy, posx, ar):
     global minrisk
-    arrived = False
     ar += grid[posy][posx]
     #print('Now', posy, posx, ar)
     if ar >= rm[posy][posx]:
-        return ar, False
+        return minrisk
+    elif ar >= minrisk:
+        rm[posy][posx] = minrisk
+        return ar
     elif posx == maxx-1 and posy == maxy-1:
         print('At end', minrisk, ar)
-        return ar, True
+        return ar
     rm[posy][posx] = ar
     if posy < maxy-1:
-        rv, finished = nextstep(posy+1, posx, ar)
-        if finished and rv < minrisk:
+        rv = nextstep(posy+1, posx, ar)
+        if rv < minrisk:
             minrisk = rv
-            arrived = True
     if posx < maxx-1:
-        rv, finished = nextstep(posy, posx+1, ar)
-        if finished and rv < minrisk:
+        rv = nextstep(posy, posx+1, ar)
+        if rv < minrisk:
             minrisk = rv
-            arrived = True
     if posy > 0:
-        rv, finished = nextstep(posy-1, posx, ar)
-        if finished and rv < minrisk:
+        rv = nextstep(posy-1, posx, ar)
+        if rv < minrisk:
             minrisk = rv
-            arrived = True
     if posx > 0:
-        rv, finished = nextstep(posy, posx-1, ar)
-        if finished and rv < minrisk:
+        rv = nextstep(posy, posx-1, ar)
+        if rv < minrisk:
             minrisk = rv
-            arrived = True
-    return minrisk, arrived
+    return minrisk
 
 
 grid = []
@@ -245,4 +243,4 @@ nextstep(posy, posx, 0)
 minrisk -= grid[0][0]
 print(minrisk)
 
-# 613
+# 2899

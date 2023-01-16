@@ -45,36 +45,34 @@ setrecursionlimit(100000)
 
 def step(posy, posx, ar):
     global minrisk
-    arrived = False
     ar += grid[posy][posx]
     #print('Now', posy, posx, ar)
     if ar >= rm[posy][posx]:
-        return ar, False
+        return minrisk
+    elif ar > minrisk:
+        rm[posy][posx] = minrisk
+        return ar
     elif posx == maxx and posy == maxy:
         print('At end', minrisk, ar)
-        return ar, True
+        return ar
     rm[posy][posx] = ar
     if posy < maxy:
-        rv, finished = step(posy+1, posx, ar)
-        if finished and rv < minrisk:
+        rv = step(posy+1, posx, ar)
+        if rv < minrisk:
             minrisk = rv
-            arrived = True
     if posx < maxx:
-        rv, finished = step(posy, posx+1, ar)
-        if finished and rv < minrisk:
+        rv = step(posy, posx+1, ar)
+        if rv < minrisk:
             minrisk = rv
-            arrived = True
     if posy > 0:
-        rv, finished = step(posy-1, posx, ar)
-        if finished and rv < minrisk:
+        rv = step(posy-1, posx, ar)
+        if rv < minrisk:
             minrisk = rv
-            arrived = True
     if posx > 0:
-        rv, finished = step(posy, posx-1, ar)
-        if finished and rv < minrisk:
+        rv = step(posy, posx-1, ar)
+        if rv < minrisk:
             minrisk = rv
-            arrived = True
-    return minrisk, arrived
+    return minrisk
 
 
 grid = []
