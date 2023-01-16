@@ -97,4 +97,88 @@ Here are a few more examples of hexadecimal-encoded transmissions:
 Decode the structure of your hexadecimal-encoded BITS transmission; what do you get if you add up the version numbers in all packets?
 """
 
+def decode_literal(l):
+    while l[0] == '1':
+        print(l[:5])
+        l = l[5:]
+    print(l[:5])
+    l = l[5:]
+    return l
+
+def decode_operator(o):
+    # operator
+    print('An operator packet')
+    if o[0] == '0':
+        length = o[1:16]
+        o = o[16:]
+        content_length = int(length,2)
+        string_length = len(o)
+        while len(o) > string_length - content_length:
+            o = decode_packet(o)
+    else:
+        print('boo')
+        length = o[1:12]
+        o = o[12:]
+        contained_packets = int(length,2)
+        for i in range(contained_packets):
+            o = decode_packet(o)
+    return o
+
+
+
+def decode_packet(p):
+    v = p[:3]
+    t = p[3:6]
+    print()
+    print(v, t)
+    print(int(v,2))
+    print(int(t,2))
+    p = p[6:]
+    if t == '100':
+        # literal value
+        print('Some literal value')
+        remain = decode_literal(p)
+    else:
+        # operator
+        print('An operator packet')
+        remain = decode_operator(p)
+    return remain
+
+
+with open('Day16-Input--Debug2') as file:
+    line = file.read()
+
+print(line)
+bla = int(line,16)
+print(bla)
+print(hex(bla))
+print(bin(bla))
+s = str(bin(bla))[2:]
+print(s)
+pad = (4 - len(s) % 4) % 4
+for i in range(pad):
+    s = '0' + s
+
+decode_packet(s)
+quit()
+v = s[:3]
+t = s[3:6]
+print()
+print(v, t)
+print(int(v,2))
+print(int(t,2))
+s = s[6:]
+if t == '100':
+    # literal value
+    print('Some literal value')
+    remain = decode_literal(s)
+    s = remain
+else:
+    # operator
+    print('An operator packet')
+    if s[0] == '0':
+        length = s[1:16]
+        s = s[16:]
+        print(int(length,2))
+        decode_packet()
 
