@@ -129,21 +129,28 @@ For example:
 What do you get if you evaluate the expression represented by your hexadecimal-encoded BITS transmission?
 """
 
-def decode_literal():
-    global s
-    num = ''
-    while s[0] == '1':
+
+def decode_packet():
+    global s, ver_sum
+    v = int(s[:3],2)
+    t = int(s[3:6],2)
+    print(v, t)
+    ver_sum += v
+    s = s[6:]
+
+    if t == 4:
+        num = ''
+        while s[0] == '1':
+            num += s[1:5]
+            s = s[5:]
         num += s[1:5]
         s = s[5:]
-    num += s[1:5]
-    s = s[5:]
-    print('4: Literal Number', int(num,2))
-    return int(num,2)
+        print('4: Literal Number', int(num,2))
+        return int(num,2)
 
-def decode_operator(tp):
-    global s
     r = 0
     values = []
+
     if s[0] == '0':
         content_length = int(s[1:16],2)
         s = s[16:]
@@ -159,69 +166,50 @@ def decode_operator(tp):
             print('Decode packet', i+1, 'in t1 operator')
             values.append(decode_packet())
     
-    if tp == 0:     # sum
+    if t == 0:     # sum
         for value in values:
             r += value
         print('0: Sum', r)
-    elif tp == 1:   # product
+    elif t == 1:   # product
         r = 1
         for value in values:
             r *= value
         print('1: Product', r)
-    elif tp == 2:   # min
+    elif t == 2:   # min
         r = 1000000000000000000000000000
         for value in values:
             if value < r:
                 r = value
         print('2: min', r)
-    elif tp == 3:   # max
+    elif t == 3:   # max
         for value in values:
             if value > r:
                 r = value
         print('3: max', r)
-    elif tp == 5:   # >
+    elif t == 5:   # >
         if values[0] > values[1]:
             r = 1
         print('5: first > second', r)
-    elif tp == 6:   # <
+    elif t == 6:   # <
         if values[0] < values[1]:
             r = 1
         print('6: first < second', r)
-    elif tp == 7:   # ==
+    elif t == 7:   # ==
         if values[0] == values[1]:
             r = 1
         print('7: first == second', r)
     return r
 
-def decode_packet():
-    global s, ver_sum
-    v = int(s[:3],2)
-    t = int(s[3:6],2)
-    print(v, t)
-    ver_sum += v
-    s = s[6:]
-
-    if t == 4:
-        r = decode_literal()
-    else:
-        print('An operator packet')
-        r = decode_operator(t)
-    return r
-
 
 ver_sum = 0
 
-#with open('Day16-Input--Debug17') as file:
+#with open('Day16-Input--Debug11') as file:
 with open('Day16-Input') as file:
     line = file.read()
 
-print(line)
-bla = int(line,16)
-print(bla)
-print(hex(bla))
-print(bin(bla))
-s = bin(bla)[2:]
-if len(hex(bla)) < len(line) + 1:
+dec = int(line,16)
+s = bin(dec)[2:]
+if len(hex(dec)) < len(line) + 1:
     s = '0000' + s
 pad = (4 - len(s)) % 4
 pd = ''
