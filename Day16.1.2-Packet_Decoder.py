@@ -95,55 +95,123 @@ Here are a few more examples of hexadecimal-encoded transmissions:
     A0016C880162017C3686B18A3D4780 is an operator packet that contains an operator packet that contains an operator packet that contains five literal values; it has a version sum of 31.
 
 Decode the structure of your hexadecimal-encoded BITS transmission; what do you get if you add up the version numbers in all packets?
+
+Your puzzle answer was 873.
+
+
+--- Part Two ---
+
+Now that you have the structure of your transmission decoded, you can calculate the value of the expression it represents.
+
+Literal values (type ID 4) represent a single number as described above. The remaining type IDs are more interesting:
+
+    Packets with type ID 0 are sum packets - their value is the sum of the values of their sub-packets. If they only have a single sub-packet, their value is the value of the sub-packet.
+    Packets with type ID 1 are product packets - their value is the result of multiplying together the values of their sub-packets. If they only have a single sub-packet, their value is the value of the sub-packet.
+    Packets with type ID 2 are minimum packets - their value is the minimum of the values of their sub-packets.
+    Packets with type ID 3 are maximum packets - their value is the maximum of the values of their sub-packets.
+    Packets with type ID 5 are greater than packets - their value is 1 if the value of the first sub-packet is greater than the value of the second sub-packet; otherwise, their value is 0. These packets always have exactly two sub-packets.
+    Packets with type ID 6 are less than packets - their value is 1 if the value of the first sub-packet is less than the value of the second sub-packet; otherwise, their value is 0. These packets always have exactly two sub-packets.
+    Packets with type ID 7 are equal to packets - their value is 1 if the value of the first sub-packet is equal to the value of the second sub-packet; otherwise, their value is 0. These packets always have exactly two sub-packets.
+
+Using these rules, you can now work out the value of the outermost packet in your BITS transmission.
+
+For example:
+
+    C200B40A82 finds the sum of 1 and 2, resulting in the value 3.
+    04005AC33890 finds the product of 6 and 9, resulting in the value 54.
+    880086C3E88112 finds the minimum of 7, 8, and 9, resulting in the value 7.
+    CE00C43D881120 finds the maximum of 7, 8, and 9, resulting in the value 9.
+    D8005AC2A8F0 produces 1, because 5 is less than 15.
+    F600BC2D8F produces 0, because 5 is not greater than 15.
+    9C005AC2F8F0 produces 0, because 5 is not equal to 15.
+    9C0141080250320F1802104A08 produces 1, because 1 + 3 = 2 * 2.
+
+What do you get if you evaluate the expression represented by your hexadecimal-encoded BITS transmission?
 """
 
-def decode_literal(l):
+def decode_literal():
+    global s
     num = ''
-    while l[0] == '1':
-        num += l[1:5]
-        l = l[5:]
-    num += l[1:5]
-    l = l[5:]
-    print('Literal Number:', int(num,2))
-    return l
+    while s[0] == '1':
+        num += s[1:5]
+        s = s[5:]
+    num += s[1:5]
+    s = s[5:]
+    print('4: Literal Number', int(num,2))
+    return int(num,2)
 
-def decode_operator(o):
-    if o[0] == '0':
-        content_length = int(o[1:16],2)
-        o = o[16:]
-        string_length = len(o)
-        while len(o) > string_length - content_length:
+def decode_operator(tp):
+    global s
+    r = 0
+    values = []
+    if s[0] == '0':
+        content_length = int(s[1:16],2)
+        s = s[16:]
+        string_length = len(s)
+        while len(s) > string_length - content_length:
             print('Decode packet in t0 operator')
-            o = decode_packet(o)
+            values.append(decode_packet())
     else:
-        length = o[1:12]
-        o = o[12:]
+        length = s[1:12]
+        s = s[12:]
         contained_packets = int(length,2)
         for i in range(int(length,2)):
             print('Decode packet', i+1, 'in t1 operator')
-            o = decode_packet(o)
-    return o
+            values.append(decode_packet())
+    
+    if tp == 0:     # sum
+        for value in values:
+            r += value
+        print('0: Sum', r)
+    elif tp == 1:   # product
+        r = 1
+        for value in values:
+            r *= value
+        print('1: Product', r)
+    elif tp == 2:   # min
+        r = 1000000000000000000000000000
+        for value in values:
+            if value < r:
+                r = value
+        print('2: min', r)
+    elif tp == 3:   # max
+        for value in values:
+            if value > r:
+                r = value
+        print('3: max', r)
+    elif tp == 5:   # >
+        if values[0] > values[1]:
+            r = 1
+        print('5: first > second', r)
+    elif tp == 6:   # <
+        if values[0] < values[1]:
+            r = 1
+        print('6: first < second', r)
+    elif tp == 7:   # ==
+        if values[0] == values[1]:
+            r = 1
+        print('7: first == second', r)
+    return r
 
-def decode_packet(p):
-    global ver_sum
-    v = int(p[:3],2)
-    t = int(p[3:6],2)
+def decode_packet():
+    global s, ver_sum
+    v = int(s[:3],2)
+    t = int(s[3:6],2)
     print(v, t)
     ver_sum += v
-    p = p[6:]
+    s = s[6:]
+
     if t == 4:
-        # literal value
-        p = decode_literal(p)
+        r = decode_literal()
     else:
-        # operator
         print('An operator packet')
-        p = decode_operator(p)
-    return p
+        r = decode_operator(t)
+    return r
 
 
 ver_sum = 0
 
-#with open('Day16-Input--Debug6') as file:
+#with open('Day16-Input--Debug17') as file:
 with open('Day16-Input') as file:
     line = file.read()
 
@@ -153,6 +221,8 @@ print(bla)
 print(hex(bla))
 print(bin(bla))
 s = bin(bla)[2:]
+if len(hex(bla)) < len(line) + 1:
+    s = '0000' + s
 pad = (4 - len(s)) % 4
 pd = ''
 for i in range(pad):
@@ -160,8 +230,14 @@ for i in range(pad):
 s = pd + s
 print(s)
 
-while len(s) > 10:
-    print('Decoding afresh')
-    s = decode_packet(s)
+out = decode_packet()
 
-print(ver_sum)
+print()
+print('Version Sum:', ver_sum)
+print('Value of Expression:', out)
+
+# pt 1
+# 873
+
+# pt 2
+# 402817863665
