@@ -211,6 +211,28 @@ for x in range(x0//3+2, x1//3+2):
         possible_y.append(y)
 print(len(possible_x))
 
+# four-step solutions
+for x in range(x0//4+2, x1//4+3):   # wrong
+    for y in range(y0//4+2, y1//4+3): # wrong again
+        print('4 steps', x, y)
+        possible_x.append(x)
+        possible_y.append(y)
+print(len(possible_x))
+
+# five-step solutions
+for x in range(x0//5+2, x1//5+3):   #wrong
+    for y in range(y0//5+2, y1//5+3): # allwrong
+        print('5 steps', x, y)
+        possible_x.append(x)
+        possible_y.append(y)
+print(len(possible_x))
+
+## in the example, all that's left is numbers for which any y
+## between 'high enough' and 'falling too fast' will do.
+
+## Fix the range definitions by computing all edge cases,
+## and try and find the generic formula...
+
 checkx = []
 checky = []
 with open('Day17-Input--Debug_Control', 'r') as file:
